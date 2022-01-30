@@ -1,0 +1,274 @@
+---
+title: "NBA"
+author: "Alessandro Dalla Riva 151881"
+output:
+  ioslides_presentation:
+    css: ~/Desktop/esame fond/style.css
+    incremental: yes
+editor_options: 
+  chunk_output_type: inline
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache = TRUE, message = FALSE, warning = FALSE)
+```
+
+## History
+
+Basketball was invented by the Canadian physical education instructor **James Naismith** in 1891, in the city of Springfield in Massachusetts. First thing first, the purpose was to invent a sport with less injury probability than football. The second purpose was to find a way to let the athletes practice also during the winter time, because it is an indoor sport. 
+![James Naismith](~/Desktop/esame fond/image/james_naismith.jpg)
+
+
+## What's the basketball's influence in the world?
+
+As we can analyze from the data, the main countries where basketball is the major sport are the **Dominican Republic**, **Philippines** and **Bahamas**. Basketball is a widespread sport all over the world, but in some states it is more widespread and practiced than others. For instance, in the Philippines basketball is experienced as a culture, in fact it is their national sport. Many kids play it in the streets and improvise baskets with the things they have.
+
+```{r echo=FALSE}
+library(readxl)
+library(ggplot2)
+int_map <- read_xlsx("~/Desktop/esame fond/basket/nba/geoMap2.xlsx",
+                     col_types = c("text", "numeric"))
+
+int_map1 <- int_map[!is.na(int_map$Value) & (int_map$Value>10),]
+
+int_map1
+
+ggplot(data = int_map1, aes(x = Value, y = reorder(Country,Value))) +
+  geom_col()+
+  labs(title = "Basketball's influence in the world", x = "Value", y = "Country")
+```
+
+
+## What's the NBA fan's interest during the last 15 years (2003-2018)?
+
+There are several basketball leagues in the world, but the most competitive and the one where everyone aspires to play is without a doubt the NBA. The acronym "NBA" stands for National Basketball Association and is the major American league.
+The NBA interest of the fans started especially during the last decade, when the social media allowed to make the league known around the world. The greatest attention it attracted was in June of this year, on the occasion of the finals between the Phoenix Suns and Milwaukee Bucks, which ended with the victory of the latter.
+
+```{r echo=FALSE}
+library(readr)
+library(ggplot2)
+
+interessetempo_nba <- read_csv("~/Desktop/esame fond/basket/nba/interessetempo_nba.csv",
+                               col_types = cols(Mese = col_date(format = "%m/%Y")))
+
+
+ggplot(data = interessetempo_nba, aes(x = Nmese, y = NBA)) +
+  geom_line() +
+  scale_x_continuous(labels = c("2004", "", "", "", "", "", "", "", "", "", "", "", 
+                                "2005", "", "", "", "", "", "", "", "", "", "", "",
+                                "2006", "", "", "", "", "", "", "", "", "", "", "", 
+                                "2007", "", "", "", "", "", "", "", "", "", "", "",
+                                "2008", "", "", "", "", "", "", "", "", "", "", "", 
+                                "2009", "", "", "", "", "", "", "", "", "", "", "",
+                                "2010", "", "", "", "", "", "", "", "", "", "", "", 
+                                "2011", "", "", "", "", "", "", "", "", "", "", "",
+                                "2012", "", "", "", "", "", "", "", "", "", "", "", 
+                                "2013", "", "", "", "", "", "", "", "", "", "", "",
+                                "2014", "", "", "", "", "", "", "", "", "", "", "", 
+                                "2015", "", "", "", "", "", "", "", "", "", "", "",
+                                "2016", "", "", "", "", "", "", "", "", "", "", "", 
+                                "2017", "", "", "", "", "", "", "", "", "", "", "",
+                                "2018", "", "", "", "", "", "", "", "", "", "", "", 
+                                "2019", "", "", "", "", "", "", "", "", "", "", "",
+                                "2020", "", "", "", "", "", "", "", "", "", "", "", 
+                                "2021", "", "", "", "", "", "", "", ""),
+                     breaks =  c(1:213)
+                       ) +
+  labs(title = "NBA interest",
+       x = "Time",
+       y = "Interest")
+
+```
+
+
+## Where do NBA players come from?
+
+As we can see the majority of the players come from the **USA**. There is a little portion of players coming from other countries. Of that little portion the first country is **France** and the second is **Canada**. Generally speaking the NBA players are Americans, but in recent years many European players have gone to play in the United States. Some of them becoming real leaders of the teams in which they played. An example of this is surely the German Dirk Nowitzki, the power forward of the Dallas Mavericks for over twenty years. Moreover in the 2006-2007 season he was elected MVP of the NBA league.
+
+```{r echo=FALSE}
+library(readr)
+library(ggplot2)
+library(dplyr)
+
+all_seasons <- read_csv("~/Desktop/esame fond/all_seasons.csv")
+
+nc <- all_seasons %>%
+  select(country) %>%
+  count(country,sort = T) %>%
+  filter(n>50) %>%
+  arrange(desc(n))
+
+nc
+
+ggplot(data=nc, mapping = aes(x = n, y = reorder(country,n))) +
+  geom_col() +
+  labs(title = "Where do NBA players come from?", x = "Count", y = "Country")
+```
+
+
+## Does players height depend on the position?
+
+Yes. We can analyze how the height of the players changes according to their position on the court. The conclusion is that the point guard is the shortest and the center is the highest, as we could expect. 
+
+![*Positions*](~/Desktop/esame%20fond/image/positions.png)
+
+```{r echo=FALSE}
+library(readr)
+library(ggplot2)
+data1 <- read_xlsx("~/Desktop/esame fond/basket/nba/position_height.xlsx")
+
+data1$position <- factor(data1$position,levels = c("PG","SG","SF","PF","C"))
+
+ggplot(data = data1, mapping = aes(x = position, y = average_height)) +
+  geom_col(width = 0.75)+
+  labs(title = "How height changes according to the position", x = "Position", y = "Average height (cm)")
+```
+
+
+## Which players had the craziest body physique the NBA has ever seen?
+
+The NBA from his foundation have seen a lot of players, but only a few had very unique bodies. For instance, the heaviest player in NBA history was Sim Bhullar, the tallest was Gheorghe Muresan, the lightest was Spud Webb and the shortest was Muggsy Bogues. 
+
+![](~/Desktop/esame fond/image/manute-bol.jpg)
+
+
+```{r players_height:weight, echo=FALSE}
+library(readr)
+library(ggplot2)
+
+all_players <- read_csv("~/Desktop/esame fond/all_seasons.csv")
+
+
+ggplot(data = all_players, mapping = aes(x = player_weight, y = player_height)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth() +
+  geom_text(aes(label = ifelse(player_weight>152, player_name, "")),
+            hjust = 0, size = 2, vjust = 0,  nudge_y = 0.8) +
+  geom_text(aes(label = ifelse(player_height>230, player_name, "")),
+            hjust = 0, size = 2, vjust = 0,  nudge_y = 0.8) +
+  geom_text(aes(label = ifelse(player_weight<62, player_name, "")),
+            hjust = -0, size = 2, vjust = 0,  nudge_y = 0.8) +
+  labs(title = "NBA players height and weight",
+       x = "Player weight (kg)",
+       y = "Player height (cm)")
+
+```
+
+
+## Does height influences how much a player score?
+
+No. As we can see there is no correlation between height and how much a players scores. The only thing that we can say is that the shortest and the highest players have both low numbers.
+
+```{r echo=FALSE}
+library(readr)
+library(ggplot2)
+library(modelr)
+
+all_players <- read_csv("~/Desktop/esame fond/all_seasons.csv")
+all_players
+
+ggplot(data = all_players, mapping = aes(x = player_height, y = pts)) +
+  geom_point(aes(colour = pts),position = "identity") +
+  geom_smooth(se=F) +
+  labs(title = "", x = "height", y = "points", colour = "points")
+
+lmod = lm(pts~player_height, data = all_players)
+lmod
+
+summary(lmod)
+lmod$coefficients # y = 16.0604186 - 0.0393124 * x
+
+ggplot(data = all_players, mapping = aes(x = player_height, y = pts)) +
+  geom_point(aes(colour = pts),position = "identity") +
+  geom_smooth(se=F) +
+  labs(title = "", x = "height", y = "points", colour = "points") +
+  geom_abline(intercept = lmod$coefficients[1],
+              slope = lmod$coefficients[2],
+              col = 'red')
+
+cor(all_players$player_height, all_players$pts)
+# -0.05 is very close to 0, so the two variables are uncorrelated
+```
+
+
+## How much were NBA players paid during the last 15 years (2003-2018)?
+
+As we can expect, with the increasing of the popularity, it increases also the players salary. The most paid player during the 2017-18 season was Stephen Curry, with a 34.6 million dollar contract.
+
+```{r echo=FALSE}
+library(readr)
+library(ggplot2)
+library(scales)
+
+salaries_1985to2018 <- read_csv("~/Desktop/esame fond/basket/nba/salaries_1985to2018.csv")
+
+salaries_1985to2018
+
+ggplot(data = salaries_1985to2018, mapping = aes(x = season_start, y = salary)) +
+  geom_point(alpha = 0.05) +
+  geom_smooth(se = FALSE) +
+  scale_y_continuous(labels = dollar) +
+  theme_minimal() +
+  labs(title = "NBA players salaries from 1985 to 2018",
+       x = "Years",
+       y = "Salary")
+
+```
+
+
+## Money have some influence in team victory?
+
+One might think that teams wins because they have a lot of money to buy the best players. As we can see this statement is incorrect, in fact a team's ability to win is not affected by the amount of money a team has.
+
+```{r echo=FALSE}
+library(readr)
+library(ggplot2)
+
+data2 <- read_xlsx("~/Desktop/esame fond/archive-2/nba_2017_att_val_elo.xlsx")
+data2
+
+ggplot(data = data2, mapping = aes(x = VALUE_MILLIONS, y = WIN_PERC))+
+  geom_point()+
+  geom_smooth(se=F)+
+  labs(x = "Team's value (million)", y = "Win %")
+```
+
+
+## Most searched players on Wikipedia
+
+Wikipedia is an online encyclopedia where you can find a lot of information. For this reason, many fans go to look for information on the players they prefer or simply to find out some curiosity. These are the most searched NBA players on Wikipedia.
+
+```{r echo=FALSE}
+library(readr)
+library(ggplot2)
+
+nba_wt <- read_csv("~/Desktop/esame fond/archive-2/nba_2017_players_with_salary_wiki_twitter.csv")
+nba_wt
+
+nba_wt = nba_wt %>%
+  filter(PAGEVIEWS>2000)
+
+ggplot(data = nba_wt, mapping = aes(x = PAGEVIEWS, y = reorder(PLAYER,PAGEVIEWS))) +
+  geom_col() +
+  labs(x = "Pageviews", y = "Players")
+```
+
+
+## Most liked tweets
+
+Twitter is a social network born in 2006, that allows its users to post short messages. Many NBA players use it to share with their fans what is going on in their life or to express their opinion about debates and many other things. In the graph below we can see who are the players with the most likes, so we can consider them the most appreciated.
+
+```{r echo=FALSE}
+library(readr)
+library(ggplot2)
+
+nba_wt <- read_csv("~/Desktop/esame fond/archive-2/nba_2017_players_with_salary_wiki_twitter.csv")
+nba_wt
+
+nba_wt = nba_wt %>%
+  filter(TWITTER_FAVORITE_COUNT>800)
+
+ggplot(data = nba_wt, mapping = aes(x = TWITTER_FAVORITE_COUNT, 
+                                      y = reorder(PLAYER,TWITTER_FAVORITE_COUNT))) +
+  geom_col() +
+  labs(x = "Tweet's likes", y = "Player")
+```
